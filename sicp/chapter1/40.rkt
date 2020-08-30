@@ -10,7 +10,7 @@
   "Should return c for x = 0."
   (check-equal? ((cubic 1 2 3) 0) 3)
   (check-equal? ((cubic 7 7 1) 0) 1)
-   (check-equal? ((cubic 5 6 0) 0) 0))
+  (check-equal? ((cubic 5 6 0) 0) 0))
 
 
 (test-case
