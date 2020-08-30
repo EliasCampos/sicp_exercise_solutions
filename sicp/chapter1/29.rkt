@@ -17,7 +17,6 @@
     (* (/ h 3) (sum y 0 inc n))))
 
 
-(define (one x) (+ 1 (* 0 x)))
 (define (identity x) x)
 (define (cube x) (* x x x))
 
@@ -28,6 +27,6 @@
 
 (test-case
   "Should calculate approximate value of integral of a function."
-  (check-in-tolerance (simpson-integral one 0 10.0 100) 10)
+  (check-in-tolerance (simpson-integral (lambda (_) 1) 0 10.0 100) 10)
   (check-in-tolerance (simpson-integral identity 0 10.0 1000) 50.0)
   (check-in-tolerance (simpson-integral cube 0 1.0 1000) 0.25))

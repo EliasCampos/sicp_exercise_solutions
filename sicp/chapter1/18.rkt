@@ -6,10 +6,10 @@
 (define (halve x) (/ x 2))
 
 (define (fast-mul a b)
-  (define (fast-mul-iter x y a)
-    (cond ((= y 0) a)
-          ((even? y) (fast-mul-iter (double x) (halve y) a))
-          (else (fast-mul-iter x (- y 1) (+ a x)))))
+  (define (fast-mul-iter x y acc)
+    (cond ((= y 0) acc)
+          ((even? y) (fast-mul-iter (double x) (halve y) acc))
+          (else (fast-mul-iter x (- y 1) (+ acc x)))))
 
   (fast-mul-iter a b 0))
 
