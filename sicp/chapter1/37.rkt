@@ -22,3 +22,20 @@
 (test-case
   "Should implement common continue fraction."
   (check-in-tolerance (golden-ratio 100) GOLDEN_RATIO))
+
+
+(define (cont-frac-b n d k)
+  (define (cont-frac-step i)
+    (if (> i k)
+        0
+        (/ (n i)
+           (+ (d i) (cont-frac-step (+ i 1))))))
+  (cont-frac-step 1))
+
+(test-case
+  "The recurcive procedure with n(i) = 1 and d(i) = 1 has to calcuale 1 / phi."
+  (check-in-tolerance
+   (cont-frac-b (lambda (i) 1.0)
+                (lambda (i) 1.0)
+                20)
+   (- GOLDEN_RATIO 1)))
