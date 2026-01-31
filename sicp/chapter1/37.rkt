@@ -35,7 +35,7 @@
 (test-case
   "The recurcive procedure with n(i) = 1 and d(i) = 1 has to calcuale 1 / phi."
   (check-in-tolerance
-   (cont-frac-b (lambda (i) 1.0)
-                (lambda (i) 1.0)
+   (cont-frac-b (lambda (_) 1.0)
+                (lambda (_) 1.0)
                 20)
    (- GOLDEN_RATIO 1)))

@@ -6,10 +6,9 @@
 
 (define (fast-expt b n)
   (define (fast-expt-iter x k a)
-    (cond ((= k 0) a)
-          ((even? k) (fast-expt-iter (square x) (/ k 2) a))
-          (else (fast-expt-iter x (- k 1) (* a x)))))
-  
+    (cond [(= k 0) a]
+          [(even? k) (fast-expt-iter (square x) (/ k 2) a)]
+          [else (fast-expt-iter x (- k 1) (* a x))]))
   (fast-expt-iter b n 1))
 
 

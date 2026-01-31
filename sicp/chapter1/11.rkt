@@ -4,12 +4,12 @@
 (#%require rackunit)
 
 (define (f-recur n)
-  (cond ((< n 1) 0)
-        ((< n 3) n)
-        (else (+
+  (cond [(< n 1) 0]
+        [(< n 3) n]
+        [else (+
                (f-recur (- n 1))
                (f-recur (- n 2))
-               (f-recur (- n 3))))))
+               (f-recur (- n 3)))]))
 
 (define (f-iter n)
   (define (f-iter-iter a b c count)
@@ -17,9 +17,9 @@
         a
         (f-iter-iter (+ a b c) a b (- count 1))))
 
-  (cond ((< n 1) 0)
-        ((< n 3) n)
-        (else (f-iter-iter 2 1 0 n))))
+  (cond [(< n 1) 0]
+        [(< n 3) n]
+        [else (f-iter-iter 2 1 0 n)]))
 
 (test-case
   "Recursive function should return proper summ."
