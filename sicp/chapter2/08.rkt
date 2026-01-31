@@ -12,11 +12,11 @@
 
 
 (test-case
-  "(sub-interval a b) result max value has to be a max minus b minus."
+  "(sub-interval a b) result max value must be max of a minus min of b."
   (check-equal? (upper-bound (sub-interval (make-interval 1.0 5.0) (make-interval 2.0 4.0))) 3.0)
   (check-equal? (upper-bound (sub-interval (make-interval 1.0 5.0) (make-interval -2.0 -1.0))) 7.0))
 
 (test-case
-  "(sub-interval a b) result min value has to be a min minus b max."
+  "(sub-interval a b) result min value must be min of a minus max of b."
   (check-equal? (lower-bound (sub-interval (make-interval 1.0 5.0) (make-interval 2.0 4.0))) -3.0)
   (check-equal? (lower-bound (sub-interval (make-interval -2.0 -1.0) (make-interval 1.0 3.0))) -5.0))
