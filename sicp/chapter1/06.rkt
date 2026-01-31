@@ -20,9 +20,7 @@
           guess
           (sqrt-iter (improve guess x) x)))
 
-; Since the order of evaluation is applicative,
-; that is, unless the procedure is a special form
-; the arguments are evaluated first and applied afterwards,
-; the (sqrt-iter 1.0 2) evaluation will get stuck in an infinite loop
-; as the nested sqrt-iter is constantly evaluated and recursion never stops
-;(sqrt-iter 1.0 2)
+; Since the order of evaluation is applicative, that is,
+; unless the procedure is a special form, the arguments are evaluated first and applied afterwards,
+; the (sqrt-iter 1.0 2) would get stuck in an infinite loop if it were executed,
+; due to constant evaluation of the recursive (sqrt-iter ...) procedure.
