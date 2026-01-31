@@ -7,10 +7,10 @@
 (define (y-point p) (cdr p))
 
 (define (make-rect p1 p2)
-  (let ((x1 (x-point p1))
-        (y1 (y-point p1))
-        (x2 (x-point p2))
-        (y2 (y-point p2)))
+  (let ([x1 (x-point p1)]
+        [y1 (y-point p1)]
+        [x2 (x-point p2)]
+        [y2 (y-point p2)])
     (cons (abs (- x1 x2)) (abs (- y1 y2)))))
 (define (make-rect2 width height)
   (cons width height))

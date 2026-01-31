@@ -9,9 +9,9 @@
   (define (next test-divisor)
     (if (= test-divisor 2) 3 (+ test-divisor 2)))
   (define (find-divisor test-divisor)
-    (cond ((> (square test-divisor) n) n)
-          ((divides? test-divisor n) test-divisor)
-          (else (find-divisor (next test-divisor)))))
+    (cond [(> (square test-divisor) n) n]
+          [(divides? test-divisor n) test-divisor]
+          [else (find-divisor (next test-divisor))]))
 
   (find-divisor 2))
 

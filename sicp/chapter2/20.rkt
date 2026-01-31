@@ -5,10 +5,10 @@
 (define (same-parity num . nums)
   (define (same-parity? x y) (= (remainder x 2) (remainder y 2)))
   (define (filtered-nums curr-nums)
-   (cond ((null? curr-nums) nil)
-         ((same-parity? num (car curr-nums))
-          (cons (car curr-nums) (filtered-nums (cdr curr-nums))))
-         (else (filtered-nums (cdr curr-nums)))))
+   (cond [(null? curr-nums) nil]
+         [(same-parity? num (car curr-nums))
+          (cons (car curr-nums) (filtered-nums (cdr curr-nums)))]
+         [else (filtered-nums (cdr curr-nums))]))
   (cons num (filtered-nums nums)))
 
 (test-case

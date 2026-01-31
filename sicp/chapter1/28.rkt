@@ -4,28 +4,28 @@
 
 (define (square x) (* x x))
 (define (square-check x n m)
-  (cond ((and (> x 1) (< x n) (= (remainder (square x) m) 1))
-         0)
-        (else (square x))))
+  (cond [(and (> x 1) (< x n) (= (remainder (square x) m) 1))
+         0]
+        [else (square x)]))
 (define (expmod base exp m)
-  (cond ((= exp 0) 1)
-        ((even? exp)
+  (cond [(= exp 0) 1]
+        [(even? exp)
          (remainder
           (square-check (expmod base (/ exp 2) m) exp m)
-          m))
-        (else
+          m)]
+        [else
          (remainder
           (* base (expmod base (- exp 1) m))
-          m))))
+          m)]))
 (define (miller-rabin-test n)
   (define (try-it a)
     (= (expmod a (- n 1) n) 1))
   (try-it (+ (random (- n 1)) 1)))
 (define (fast-prime? n)
   (define (fast-prime-test times)
-    (cond ((= times 0) true)
-          ((miller-rabin-test n) (fast-prime-test (- times 1)))
-          (else false)))
+    (cond [(= times 0) true]
+          [(miller-rabin-test n) (fast-prime-test (- times 1))]
+          [else false]))
   (fast-prime-test 100))
 
 (test-case

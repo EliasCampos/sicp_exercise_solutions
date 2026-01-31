@@ -4,20 +4,20 @@
 
 (define (square x) (* x x))
 (define (expmod base exp m)
-  (cond ((= exp 0) 1)
-        ((even? exp)
+  (cond [(= exp 0) 1]
+        [(even? exp)
          (remainder
           (square (expmod base (/ exp 2) m))
-          m))
-        (else
+          m)]
+        [else
          (remainder
           (* base (expmod base (- exp 1) m))
-          m))))
+          m)]))
 (define (ferma-positive? n)
   (define (ferma-positive-iter a)
-    (cond ((not (< a n)) true)
-          ((= (expmod a n n) a) (ferma-positive-iter (+ a 1)))
-          (else false)))
+    (cond [(not (< a n)) true]
+          [(= (expmod a n n) a) (ferma-positive-iter (+ a 1))]
+          [else false]))
   (ferma-positive-iter 2))
 
 

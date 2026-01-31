@@ -16,7 +16,7 @@
   (define (close-enough? v1 v2)
     (< (abs (- v1 v2)) tolerance))
   (define (try guess)
-    (let ((next (f guess)))
+    (let ([next (f guess)])
       (if (close-enough? guess next)
           next
           (try next))))
@@ -26,7 +26,7 @@
   (define (f y) (/
                  x
                  (expt y (- n 1))))
-  (let ((times (/ (log n) (log 2))))
+  (let ([times (/ (log n) (log 2))])
     (fixed-point ((repeated average-damp times) f) 100.0)))
 
 (nth-root 4 2)

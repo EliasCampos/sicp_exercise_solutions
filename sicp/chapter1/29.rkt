@@ -11,9 +11,9 @@
   (let ([h (/ (- b a) n)])
     (define (y k)
       (* (f (+ a (* k h)))
-         (cond ((or (= k 0) (= k n)) 1)
-               ((even? k) 2)
-               (else 4))))
+         (cond [(or (= k 0) (= k n)) 1]
+               [(even? k) 2]
+               [else 4])))
     (* (/ h 3) (sum y 0 inc n))))
 
 

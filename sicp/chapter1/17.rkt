@@ -6,9 +6,9 @@
   (define (double x) (* 2 x))
   (define (halve x) (/ x 2))
   
-  (cond ((= b 0) 0)
-        ((even? b) (double (mul a (halve b))))
-        (else (+ a (mul a (- b 1))))))
+  (cond [(= b 0) 0]
+        [(even? b) (double (mul a (halve b)))]
+        [else (+ a (mul a (- b 1)))]))
 
 (check-equal? (mul 0 0) 0)
 (check-equal? (mul 1 0) 0)

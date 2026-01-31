@@ -3,11 +3,11 @@
 (#%require rackunit)
 
 (define (sum-squares-of-greatest-pair x y z)
-  (cond ((and (< x y) (< x z))
-         (+ (* y y) (* z z)))
-        ((and (< y x) (< y z))
-         (+ (* x x) (* z z)))
-        (else (+ (* x x) (* y y)))))
+  (cond [(and (< x y) (< x z))
+         (+ (* y y) (* z z))]
+        [(and (< y x) (< y z))
+         (+ (* x x) (* z z))]
+        [else (+ (* x x) (* y y))]))
 
 (test-case
   "Should return sum of squares of two greatest numbers."
