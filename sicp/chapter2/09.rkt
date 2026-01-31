@@ -21,11 +21,6 @@
   (check-equal? (interval-width (make-interval 1.0 5.0)) 2.0)
   (check-equal? (interval-width (make-interval -5.0 5.0)) 5.0))
 
-(define (interval-sum-width-1 x y)
-  (interval-width (add-interval x y)))
-(define (interval-sum-width x y)
-  (+ (interval-width x) (interval-width y)))
-
 (define test-interval-1 (make-interval 1.0 5.0))
 (define test-interval-2 (make-interval -2.0 3.0))
 (define test-interval-3 (make-interval -5.0 5.0))
