@@ -48,7 +48,7 @@
 ; width(diff(a,b)) = [max(diff(a,b)) - min(diff(a,b))] / 2 = [(max(a) - min(b)) - (min(a) - max(b))] / 2 =
 ; = [(max(a) - min(a)) + (max(b) - min(b))] / 2 = width(a) + width(b)
 (test-case
-  "width(diff(a,b)) must be equal to diff(a) + diff(b) and thereby a function of the widths."
+  "width(diff(a,b)) must be equal to width(a) + width(b) and thereby a function of the widths."
   (check-equal? (interval-width (sub-interval test-interval-1 test-interval-2))
                 (+ (interval-width test-interval-1) (interval-width test-interval-2)))
   (check-equal? (interval-width (sub-interval test-interval-2 test-interval-3))
