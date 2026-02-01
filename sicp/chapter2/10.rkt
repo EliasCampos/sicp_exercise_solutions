@@ -15,7 +15,7 @@
      (min p1 p2 p3 p4)
      (max p1 p2 p3 p4))))
 (define (div-interval x y)
-  (if (= (upper-bound y) (lower-bound y))
+  (if (= (upper-bound y) (lower-bound y) 0)
       (error "Cannot divide by an interval that spans zero")
       (mul-interval
        x
@@ -24,4 +24,4 @@
 
 (check-exn
  #rx"[Cc]annot divide by an interval that spans zero"
- (lambda () (div-interval (make-interval 1.0 2.0) (make-interval 3.0 3.0))))
+ (lambda () (div-interval (make-interval 1.0 2.0) (make-interval 0.0 0.0))))
