@@ -16,6 +16,12 @@
 (define (branch-structure branch)
   (cadr branch))
 
+(define (total-weight binary-mobile)
+  (let ([left-struct (branch-structure (left-branch binary-mobile))]
+        [right-struct (branch-structure (right-branch binary-mobile))])
+       (+ (if (pair? left-struct) (total-weight left-struct) left-struct)
+          (if (pair? right-struct) (total-weight right-struct) right-struct))))
+
 
 (define br11 (make-branch 10 6))
 (define br12 (make-branch 5 8))
@@ -44,3 +50,8 @@
   (check-equal? (branch-structure br12) 8)
   (check-equal? (branch-structure br21) 4)
   (check-equal? (branch-structure br22) bm1))
+
+(test-case
+  "Total weight."
+  (check-equal? (total-weight bm1) 14)
+  (check-equal? (total-weight bm2) 18))
