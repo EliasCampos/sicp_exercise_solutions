@@ -7,9 +7,9 @@
          [paint-bottom (transform-painter painter1
                                           (make-vect 0.0 0.0)
                                           (make-vect 1.0 0.0)
-                                          (make-vect 0.0 0.5))]
+                                          split-point)]
          [paint-top (transform-painter painter2
-                                       (make-vect 0.0 0.5)
+                                       split-point
                                        (make-vect 1.0 0.5)
                                        (make-vect 0.0 1.0))])
     (lambda (frame)
