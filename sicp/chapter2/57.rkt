@@ -29,17 +29,18 @@
 
 (define (shrink-numbers proc items)
   (define (combine curr rest)
-    (cond [(null? rest)
-           (list curr)]
-          [(and (number? curr)
-                (number? (car rest)))
-           (cons (proc curr (car rest))
-                 (cdr rest))]
-          [else
-           (cons curr rest)]))
+    (let ([rest-val (car rest)]
+          [rest-items (cdr rest)])
+      (cond [(and (number? curr) (number? rest-val))
+             (cons (proc curr rest-val) rest-items)]
+            [(number? rest-val)
+             (cons rest-val (cons curr rest-items))]
+            [else
+             (cons curr rest)])))
   (define (walk l)
-    (if (null? l)
-        nil
+    (if (or (null? l)
+            (null? (cdr l)))
+        l
         (combine (car l) (walk (cdr l)))))
   (walk items))
 
@@ -50,10 +51,10 @@
         [(and (number? a1) (number? a2))
          (+ a1 a2)]
         [(or (sum? a1) (sum? a2))
-         (append (list '+)
-                 (shrink-numbers +
-                                 (append (if (sum? a1) (cdr a1) (list a1))
-                                         (if (sum? a2) (cdr a2) (list a2)))))]                     
+         (cons '+
+               (shrink-numbers +
+                               (append (if (sum? a1) (cdr a1) (list a1))
+                                       (if (sum? a2) (cdr a2) (list a2)))))]                     
         [else (list '+ a1 a2)]))
 (define (make-product m1 m2)
   (cond [(or (=number? m1 0) (=number? m2 0)) 0]
@@ -61,9 +62,10 @@
         [(=number? m2 1) m1]
         [(and (number? m1) (number? m2)) (* m1 m2)]
         [(or (product? m1) (product? m2))
-         (append (list '*)
-                 (shrink-numbers * (append (if (product? m1) (cdr m1) (list m1))
-                                           (if (product? m2) (cdr m2) (list m2)))))]  
+         (cons '*
+               (shrink-numbers *
+                               (append (if (product? m1) (cdr m1) (list m1))
+                                       (if (product? m2) (cdr m2) (list m2)))))]  
         [else (list '* m1 m2)]))
 
 (define (sum? x) (and (pair? x) (eq? (car x) '+)))
@@ -99,12 +101,16 @@
 
 (test-case
  "Addition is simplified properly."
+ (check-equal? (make-sum 1 '(+ 2 a))
+               '(+ 3 a))
+ (check-equal? (make-sum 1 '(+ a 3))
+               '(+ 4 a))
  (check-equal? (deriv '(+ a x 1) 'x)
                1)
  (check-equal? (deriv '(+ (* a x) b) 'x)
                'a)
  (check-equal? (deriv '(+ (* a (** x 2)) (* 2 a b x) (* b (** x 2))) 'x)
-               '(+ (* a 2 x) (* 2 a b) (* b 2 x)))
+               '(+ (* 2 a x) (* 2 a b) (* 2 b x)))
  (check-equal? (deriv '(+ (* 2 x) (* 3 x) (* 4 x)) 'x)
                9)
  (check-equal? (deriv '(+ (* 2 (** x 2)) (* 3 (** x 2)) (* 4 (** x 2))) 'x)
@@ -115,8 +121,8 @@
  (check-equal? (deriv '(* a x) 'x)
                'a)
  (check-equal? (deriv '(* (** a 2) (** b 2) (** x 2)) 'x)
-               '(* (** a 2) (** b 2) 2 x))
+               '(* 2 (** a 2) (** b 2) x))
  (check-equal? (deriv '(* (** (+ a x) 2) (** (+ b x) 2)) 'x)
-               '(+ (* (** (+ a x) 2) 2 (+ b x)) (* 2 (+ a x) (** (+ b x) 2))))
+               '(+ (* 2 (** (+ a x) 2) (+ b x)) (* 2 (+ a x) (** (+ b x) 2))))
  (check-equal? (deriv '(* 2 (** x 2)) 'x)
                '(* 4 x)))
