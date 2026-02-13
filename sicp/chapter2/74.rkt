@@ -66,7 +66,11 @@
           [(equal? (caar file) name)
            (car file)]
           [else (get-d1-record (cdr file) name)]))
-  (put 'get-record 'D1 get-d1-record))
+  (define (get-d1-salary record)
+    (caddr record))
+  
+  (put 'get-record 'D1 get-d1-record)
+  (put 'get-salary 'D1 get-d1-salary))
 
 (install-division-d1)
 (define d1-file (make-division-item 'D1 file-of-d1))
@@ -79,24 +83,50 @@
 
 
 (define (install-division-d2)
-  (define (get-name record)
-    (if (equal? (caar record) 'name)
+  (define (get-val key record)
+    (if (equal? (caar record) key)
         (cadar record)
-        (get-name (cdr record))))
+        (get-val key (cdr record))))
   (define (get-d2-record file name)
     (cond [(null? file)
             '()]
-          [(equal? (get-name (car file)) name)
+          [(equal? (get-val 'name (car file)) name)
            (car file)]
           [else (get-d2-record (cdr file) name)]))
-  (put 'get-record 'D2 get-d2-record))
+  (define (get-d2-salary record) (get-val 'salary record))
+  
+  (put 'get-record 'D2 get-d2-record)
+  (put 'get-salary 'D2 get-d2-salary))
 
 (install-division-d2)
 (define d2-file (make-division-item 'D2 file-of-d2))
 (test-case
  "(get-record file name) for division D2"
- (check-equal? (get-record d2-file "Bob") '(D2 (address "B2") (name "Bob") (salary 4200)))
+ (check-equal? (get-record d2-file "Bob")'(D2 (address "B2") (name "Bob") (salary 4200)))
  (check-equal? (get-record d2-file "Ann") '(D2 (name "Ann") (address "A4") (salary 3000)))
  (check-equal? (get-record d2-file "Carl") '(D2 (salary 5100) (name "Carl") (address "C3")))
  (check-equal? (get-record d2-file "Nope") '(D2)))
 
+;---------------------------------------------------
+(define (get-salary record)
+  (let* ([division (get-item-division record)]
+         [op (get 'get-salary division)]
+         [division-record (get-division-datum record)])
+    (op division-record)))
+
+(install-division-d1)
+(test-case
+ "(get-record file name) for division D1"
+ (check-eq? (get-salary (make-division-item 'D1 '("Ann" "A4" 3000))) 3000)
+ (check-eq? (get-salary (make-division-item 'D1 '("Bob" "B2" 4200))) 4200)
+ (check-eq? (get-salary (make-division-item 'D1 '("Carl" "C3" 5100))) 5100))
+
+(install-division-d2)
+(test-case
+ "(get-record file name) for division D1"
+ (check-eq? (get-salary (make-division-item 'D2 '((address "B2") (name "Bob") (salary 4200))))
+            4200)
+ (check-eq? (get-salary (make-division-item 'D2 '((name "Ann") (address "A4") (salary 3000))))
+            3000)
+ (check-eq? (get-salary (make-division-item 'D2 '((salary 5100) (name "Carl") (address "C3"))))
+            5100))
