@@ -72,8 +72,8 @@
   (put 'get-record 'D1 get-d1-record)
   (put 'get-salary 'D1 get-d1-salary))
 
-(install-division-d1)
 (define d1-file (make-division-item 'D1 file-of-d1))
+(install-division-d1)
 (test-case
  "(get-record file name) for division D1"
  (check-equal? (get-record d1-file "Bob") '(D1 "Bob" "B2" 4200))
@@ -98,8 +98,8 @@
   (put 'get-record 'D2 get-d2-record)
   (put 'get-salary 'D2 get-d2-salary))
 
-(install-division-d2)
 (define d2-file (make-division-item 'D2 file-of-d2))
+(install-division-d2)
 (test-case
  "(get-record file name) for division D2"
  (check-equal? (get-record d2-file "Bob")'(D2 (address "B2") (name "Bob") (salary 4200)))
@@ -116,17 +116,46 @@
 
 (install-division-d1)
 (test-case
- "(get-record file name) for division D1"
+ "(get-salary) for division D1"
  (check-eq? (get-salary (make-division-item 'D1 '("Ann" "A4" 3000))) 3000)
  (check-eq? (get-salary (make-division-item 'D1 '("Bob" "B2" 4200))) 4200)
  (check-eq? (get-salary (make-division-item 'D1 '("Carl" "C3" 5100))) 5100))
 
 (install-division-d2)
 (test-case
- "(get-record file name) for division D1"
+ "(get-salary record) for division D2"
  (check-eq? (get-salary (make-division-item 'D2 '((address "B2") (name "Bob") (salary 4200))))
             4200)
  (check-eq? (get-salary (make-division-item 'D2 '((name "Ann") (address "A4") (salary 3000))))
             3000)
  (check-eq? (get-salary (make-division-item 'D2 '((salary 5100) (name "Carl") (address "C3"))))
             5100))
+
+;---------------------------------------------------
+(define (find-employee-record name files)
+  (define (try-record record actual-files)
+    (if (null? (get-division-datum record))
+        (find-iter (cdr actual-files))
+        record))
+  (define (find-iter l)
+    (if (null? l)
+      false
+      (try-record (get-record (car l) name) l)))
+  (find-iter files))
+
+(define d1-file2 (make-division-item 'D1 '(("Mark" "R1" 999) ("Nick" "R2" 1999) ("Olaph" "R3" 2999))))
+(install-division-d1)
+(test-case
+ "(find-employee-record name files) for division D1"
+ (check-equal? (find-employee-record "Bob" (list d1-file d1-file2)) '(D1 "Bob" "B2" 4200))
+ (check-equal? (find-employee-record "Mark" (list d1-file d1-file2)) '(D1 "Mark" "R1" 999))
+ (check-false (find-employee-record "Nope" (list d1-file d1-file2))))
+
+(define d2-file2 (make-division-item 'D2 '(((name "Mark") (address "R1") (salary 999))
+                                           ((address "R2") (salary 1999) (name "Nick")))))
+(install-division-d2)
+(test-case
+ "(find-employee-record name files) for division D2"
+ (check-equal? (find-employee-record "Carl" (list d2-file d2-file2)) '(D2 (salary 5100) (name "Carl") (address "C3")))
+ (check-equal? (find-employee-record "Nick" (list d2-file d2-file2)) '(D2 (address "R2") (salary 1999) (name "Nick")))
+ (check-false (find-employee-record "Nope" (list d2-file d2-file2))))
