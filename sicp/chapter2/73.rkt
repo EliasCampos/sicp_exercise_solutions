@@ -83,18 +83,14 @@
 
 (install-deriv-package)
 
-(check-equal? (deriv '(+ (* a x) b) 'x) 'a)
-(check-equal? (deriv '(* k (+ x a)) 'x) 'k)
+(test-case
+ "Procedures for derivatives of sums and products."
+ (check-equal? (deriv '(+ (* a x) b) 'x) 'a)
+ (check-equal? (deriv '(* k (+ x a)) 'x) 'k))
 
 
 (define (install-deriv-expt-package)
   (define (=number? exp num) (and (number? exp) (= exp num)))
-  (define (make-sum a1 a2)
-    (cond [(=number? a1 0) a2]
-          [(=number? a2 0) a1]
-          [(and (number? a1) (number? a2))
-           (+ a1 a2)]
-          [else (list '+ a1 a2)]))
   (define (make-product m1 m2)
     (cond [(or (=number? m1 0) (=number? m2 0)) 0]
           [(=number? m1 1) m2]
@@ -122,7 +118,9 @@
 
 (install-deriv-expt-package)
 
-(check-equal? (deriv '(** (+ (* 2 x) 1) 3) 'x)
-              '(* (* 3 (** (+ (* 2 x) 1) 2)) 2))
-(check-equal? (deriv '(** (* a t) 4) 't)
-              '(* (* 4 (** (* a t) 3)) a))
+(test-case
+ "An installed procedure for derivaties of exponents."
+ (check-equal? (deriv '(** (+ (* 2 x) 1) 3) 'x)
+               '(* (* 3 (** (+ (* 2 x) 1) 2)) 2))
+ (check-equal? (deriv '(** (* a t) 4) 't)
+               '(* (* 4 (** (* a t) 3)) a)))
