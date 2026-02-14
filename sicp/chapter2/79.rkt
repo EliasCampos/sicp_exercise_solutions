@@ -63,7 +63,7 @@
 
 ;--------------------------------------------------------------------------------
 
-(define (equ? x y) (apply-generic 'equ x y))
+(define (equ? x y) (apply-generic 'equ? x y))
 
 
 (define (install-scheme-number-package)
@@ -71,7 +71,7 @@
   
   (put 'make 'scheme-number (lambda (x) (tag x)))
 
-  (put 'equ '(scheme-number scheme-number) (lambda (x y) (= x y))))
+  (put 'equ? '(scheme-number scheme-number) (lambda (x y) (= x y))))
 
 (define (make-scheme-number n)
   ((get 'make 'scheme-number) n))
@@ -108,7 +108,7 @@
   (put 'make 'rational
        (lambda (n d) (tag (make-rat n d))))
 
-  (put 'equ '(rational rational)
+  (put 'equ? '(rational rational)
        (lambda (x y) (equ-rational? x y))))
 
 (define (make-rational n d)
@@ -196,7 +196,7 @@
   (put 'make-from-mag-ang 'complex
        (lambda (r a) (tag (make-from-mag-ang r a))))
 
-  (put 'equ '(complex complex)
+  (put 'equ? '(complex complex)
        (lambda (z1 z2) (compx-equ? z1 z2))))
 
 (define (make-complex-from-real-imag x y)
