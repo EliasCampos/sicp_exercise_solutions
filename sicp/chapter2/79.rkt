@@ -195,8 +195,7 @@
   (put 'make-from-mag-ang 'complex
        (lambda (r a) (tag (make-from-mag-ang r a))))
 
-  (put 'equ? '(complex complex)
-       (lambda (z1 z2) (compx-equ? z1 z2))))
+  (put 'equ? '(complex complex) compx-equ?))
 
 (define (make-complex-from-real-imag x y)
   ((get 'make-from-real-imag 'complex) x y))
