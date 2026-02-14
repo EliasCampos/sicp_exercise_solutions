@@ -108,8 +108,7 @@
   (put 'make 'rational
        (lambda (n d) (tag (make-rat n d))))
 
-  (put 'equ? '(rational rational)
-       (lambda (x y) (equ-rational? x y))))
+  (put 'equ? '(rational rational) equ-rational?))
 
 (define (make-rational n d)
   ((get 'make 'rational) n d))
