@@ -63,15 +63,15 @@
 
 ;--------------------------------------------------------------------------------
 
-(define (equ? x y) (apply-generic 'equ? x y))
+(define (=zero? x) (apply-generic '=zero? x))
 
 
 (define (install-scheme-number-package)
   (define (tag x) (attach-tag 'scheme-number x))
-  
+
   (put 'make 'scheme-number (lambda (x) (tag x)))
 
-  (put 'equ? '(scheme-number scheme-number) (lambda (x y) (= x y))))
+  (put '=zero? '(scheme-number) (lambda (x) (= x 0))))
 
 (define (make-scheme-number n)
   ((get 'make 'scheme-number) n))
@@ -79,28 +79,26 @@
 
 (install-scheme-number-package)
 
-(define answer1 (make-scheme-number 42))
-(define answer2 (make-scheme-number 42))
-(define answer3 (make-scheme-number 33))
+(define zero (make-scheme-number 0))
+(define one (make-scheme-number 1))
+(define answer (make-scheme-number 42))
 
 (test-case
- "(equ? x y) must work for primitive numbers."
- (check-true (equ? answer1 answer1))
- (check-true (equ? answer1 answer2))
- (check-false (equ? answer1 answer3)))
+ "(=zero? x) must work for primitive numbers."
+ (check-true (=zero? zero))
+ (check-false (=zero? one))
+ (check-false (=zero? answer)))
 
 
 (define (install-rational-package)
   ;; internal procedures
   (define (numer x) (car x))
-  (define (denom x) (cdr x))
+  
   (define (make-rat n d)
     (let ([g (gcd n d)])
       (cons (/ n g) (/ d g))))
 
-  (define (equ-rational? x y)
-    (and (= (numer x) (numer y))
-         (= (denom x) (denom y))))
+  (define (zero-rational? x) (= (numer x) 0))
 
   ;; interface to rest of the system
   (define (tag x) (attach-tag 'rational x))
@@ -108,7 +106,7 @@
   (put 'make 'rational
        (lambda (n d) (tag (make-rat n d))))
 
-  (put 'equ? '(rational rational) equ-rational?))
+  (put '=zero? '(rational) zero-rational?))
 
 (define (make-rational n d)
   ((get 'make 'rational) n d))
@@ -116,15 +114,17 @@
 
 (install-rational-package)
 
-(define one-half (make-rational 1 2))
-(define five-div-ten (make-rational 5 10))
-(define one-third (make-rational 1 3))
+(define rat-one-half (make-rational 1 2))
+(define rat-one (make-rational 1 1))
+(define rat-zero (make-rational 0 42))
+(define rat-answer (make-rational 42 1))
 
 (test-case
- "(equ? x y) must work for rational numbers."
- (check-true (equ? one-half one-half))
- (check-true (equ? one-half five-div-ten))
- (check-false (equ? one-half one-third)))
+ "(=zero? x) must work for rational numbers."
+ (check-false (=zero? rat-one-half))
+ (check-false (=zero? rat-one))
+ (check-true (=zero? rat-zero))
+ (check-false (=zero? rat-answer)))
 
 
 (define (square x) (* x x))
@@ -183,9 +183,9 @@
     ((get 'make-from-mag-ang 'polar) r a))
 
   ;; internal procedures
-  (define (compx-equ? z1 z2)
-    (and (= (compx-real z1) (compx-real z2))
-         (= (compx-imag z1) (compx-imag z2))))
+  (define (compx-zero? z)
+    (and (= (compx-real z) 0)
+         (= (compx-imag z) 0)))
 
   ;; interface to rest of the system
   (define (tag z) (attach-tag 'complex z))
@@ -195,7 +195,7 @@
   (put 'make-from-mag-ang 'complex
        (lambda (r a) (tag (make-from-mag-ang r a))))
 
-  (put 'equ? '(complex complex) compx-equ?))
+  (put '=zero? '(complex) compx-zero?))
 
 (define (make-complex-from-real-imag x y)
   ((get 'make-from-real-imag 'complex) x y))
@@ -211,14 +211,16 @@
 (install-polar-package)
 (install-complex-package)
 
-(define c11 (make-complex-from-real-imag 5 0))
-(define c12 (make-complex-from-mag-ang 5 0))
+(define c01 (make-complex-from-real-imag 0 0))
+(define c02 (make-complex-from-mag-ang 0 3.14))
+(define c11 (make-complex-from-real-imag 1 1))
 (define c21 (make-complex-from-real-imag 2 3))
-(define c22 (make-complex-from-real-imag 2 3))
 (define c31 (make-complex-from-real-imag 2 -3))
 
 (test-case
- "(equ? x y) must work for complex numbers."
- (check-true (equ? c11 c12))
- (check-true (equ? c21 c22))
- (check-false (equ? c21 c31)))
+ "(=zero? x) must work for complex numbers."
+ (check-true (=zero? c01))
+ (check-true (=zero? c02))
+ (check-false (=zero? c11))
+ (check-false (=zero? c21))
+ (check-false (=zero? c31)))
