@@ -1,0 +1,254 @@
+#lang sicp
+
+(#%require rackunit)
+
+;--------------------------------------------------------------------------------
+
+(define (make-entry key value) (list key value))
+(define (entry-key entry) (car entry))
+(define (entry-value entry) (cadr entry))
+(define (table-get table key)
+  (define (get-iter t)
+    (cond [(null? t)
+           false]
+          [(equal? key (entry-key (car t)))
+           (entry-value (car t))]
+          [else (get-iter (cdr t))]))
+  (get-iter table))
+(define (table-put table key value)
+  (define (put-step t)
+    (cond [(null? t)
+           (list (make-entry key value))]
+          [(equal? key (entry-key (car t)))
+           (cons (make-entry key value)
+                 (cdr t))]
+          [else (cons (car t)
+                      (put-step (cdr t)))]))
+  (put-step table))
+
+
+(define *op-table* '())
+
+(define (get op type)
+  (table-get *op-table* (list op type)))
+
+(define (put op type item)
+  (set! *op-table*
+        (table-put *op-table* (list op type) item)))
+
+;--------------------------------------------------------------------------------
+
+(define *coercion-table* '())
+
+(define (get-coercion type1 type2)
+  (table-get *coercion-table* (list type1 type2)))
+
+(define (put-coercion type1 type2 op)
+  (set! *coercion-table*
+        (table-put *coercion-table* (list type1 type2) op)))
+
+;--------------------------------------------------------------------------------
+
+(define (attach-tag type-tag contents)
+  (if (number? contents)
+      contents
+      (cons type-tag contents)))
+
+(define (type-tag datum)
+  (cond [(pair? datum) (car datum)]
+        [(number? datum) 'scheme-number]
+        [else (error "Bad tagged datum: TYPE-TAG" datum)]))
+
+(define (contents datum)
+  (cond [(pair? datum) (cdr datum)]
+        [(number? datum) datum]
+        [else (error "Bad tagged datum: CONTENTS" datum)]))
+
+(define (apply-generic operation . args)
+  (let* ([type-tags (map type-tag args)]
+         [proc (get operation type-tags)])
+    (if proc
+        (apply proc (map contents args))
+        (if (and (= (length args) 2)
+                 (not (equal? (car type-tags) (cadr type-tags))))
+            (let* ([a1 (car args)]
+                   [a2 (cadr args)]
+                   [type1 (car type-tags)]
+                   [type2 (cadr type-tags)]
+                   [t1->t2 (get-coercion type1 type2)]
+                   [t2->t1 (get-coercion type2 type1)])
+              (cond [t1->t2
+                     (apply-generic operation (t1->t2 a1) a2)]
+                    [t2->t1
+                     (apply-generic operation a1 (t2->t1 a2))]
+                    [else (error "No method for these types"
+                                 (list operation type-tags))]))
+            (error "No method for these types"
+                   (list operation type-tags))))))
+
+;--------------------------------------------------------------------------------
+
+(define (add x y) (apply-generic 'add x y))
+(define (sub x y) (apply-generic 'sub x y))
+(define (mul x y) (apply-generic 'mul x y))
+(define (div x y) (apply-generic 'div x y))
+
+(define (pow x y) (apply-generic 'pow x y))
+
+
+(define (install-scheme-number-package)
+  (define (tag x) (attach-tag 'scheme-number x))
+  (put 'add '(scheme-number scheme-number)
+       (lambda (x y) (tag (+ x y))))
+  (put 'sub '(scheme-number scheme-number)
+       (lambda (x y) (tag (- x y))))
+  (put 'mul '(scheme-number scheme-number)
+       (lambda (x y) (tag (* x y))))
+  (put 'div '(scheme-number scheme-number)
+       (lambda (x y) (tag (/ x y))))
+  (put 'make 'scheme-number (lambda (x) (tag x)))
+
+  (put 'pow '(scheme-number scheme-number)
+       (lambda (x y) (tag (expt x y)))))
+
+
+(define (make-scheme-number n)
+  ((get 'make 'scheme-number) n))
+
+
+(define (square x) (* x x))
+
+(define (install-rectangular-package)
+  ;; internal procedures
+  (define (compx-real z) (car z))
+  (define (compx-imag z) (cdr z))
+  (define (make-from-real-imag x y) (cons x y))
+  (define (compx-magnitude z)
+    (sqrt (+ (square (compx-real z))
+             (square (compx-imag z)))))
+  (define (compx-angle z)
+    (atan (compx-imag z) (compx-real z)))
+  (define (make-from-mag-ang r a)
+    (cons (* r (cos a)) (* r (sin a))))
+  
+  ;; interface to the rest of the system
+  (define (tag x) (attach-tag 'rectangular x))
+  (put 'compx-real '(rectangular) compx-real)
+  (put 'compx-imag '(rectangular) compx-imag)
+  (put 'compx-magnitude '(rectangular) compx-magnitude)
+  (put 'compx-angle '(rectangular) compx-angle)
+  (put 'make-from-real-imag 'rectangular
+       (lambda (x y) (tag (make-from-real-imag x y))))
+  (put 'make-from-mag-ang 'rectangular
+       (lambda (r a) (tag (make-from-mag-ang r a)))))
+
+(define (install-polar-package)
+  ;; internal procedures
+  (define (compx-magnitude z) (car z))
+  (define (compx-angle z) (cdr z))
+  (define (make-from-mag-ang r a) (cons r a))
+  (define (compx-real z) (* (compx-magnitude z) (cos (compx-angle z))))
+  (define (compx-imag z) (* (compx-magnitude z) (sin (compx-angle z))))
+  (define (make-from-real-imag x y)
+    (cons (sqrt (+ (square x) (square y)))
+          (atan y x)))
+  ;; interface to the rest of the system
+  (define (tag x) (attach-tag 'polar x))
+  (put 'compx-real '(polar) compx-real)
+  (put 'compx-imag '(polar) compx-imag)
+  (put 'compx-magnitude '(polar) compx-magnitude)
+  (put 'compx-angle '(polar) compx-angle)
+  (put 'make-from-real-imag 'polar
+       (lambda (x y) (tag (make-from-real-imag x y))))
+  (put 'make-from-mag-ang 'polar
+     (lambda (r a) (tag (make-from-mag-ang r a)))))
+
+
+(define (install-complex-package)
+  ;; imported procedures from rectangular and polar packages
+  (define (make-from-real-imag x y)
+    ((get 'make-from-real-imag 'rectangular) x y))
+  (define (make-from-mag-ang r a)
+    ((get 'make-from-mag-ang 'polar) r a))
+
+  ;; internal procedures
+  (define (add-complex z1 z2)
+    (make-from-real-imag (+ (compx-real z1) (compx-real z2))
+                         (+ (compx-imag z1) (compx-imag z2))))
+  (define (sub-complex z1 z2)
+    (make-from-real-imag (- (compx-real z1) (compx-real z2))
+                         (- (compx-imag z1) (compx-imag z2))))
+  (define (mul-complex z1 z2)
+    (make-from-mag-ang (* (compx-magnitude z1) (compx-magnitude z2))
+                       (+ (compx-angle z1) (compx-angle z2))))
+  (define (div-complex z1 z2)
+    (make-from-mag-ang (/ (compx-magnitude z1) (compx-magnitude z2))
+                       (- (compx-angle z1) (compx-angle z2))))
+
+  ;; interface to rest of the system
+  (define (tag z) (attach-tag 'complex z))
+  (put 'add '(complex complex)
+       (lambda (z1 z2) (tag (add-complex z1 z2))))
+  (put 'sub '(complex complex)
+       (lambda (z1 z2) (tag (sub-complex z1 z2))))
+  (put 'mul '(complex complex)
+     (lambda (z1 z2) (tag (mul-complex z1 z2))))
+  (put 'div '(complex complex)
+       (lambda (z1 z2) (tag (div-complex z1 z2))))
+  (put 'make-from-real-imag 'complex
+     (lambda (x y) (tag (make-from-real-imag x y))))
+  (put 'make-from-real-imag 'complex
+       (lambda (x y) (tag (make-from-real-imag x y))))
+  (put 'make-from-mag-ang 'complex
+       (lambda (r a) (tag (make-from-mag-ang r a)))))
+
+(define (make-complex-from-real-imag x y)
+  ((get 'make-from-real-imag 'complex) x y))
+(define (make-complex-from-mag-ang r a)
+  ((get 'make-from-mag-ang 'complex) r a))
+
+(define (compx-real z) (apply-generic 'compx-real z))
+(define (compx-imag z) (apply-generic 'compx-imag z))
+(define (compx-magnitude z) (apply-generic 'compx-magnitude z))
+(define (compx-angle z) (apply-generic 'compx-angle z))
+
+(define (scheme-number->complex n)
+  (make-complex-from-real-imag (contents n) 0))
+(put-coercion 'scheme-number
+              'complex
+              scheme-number->complex)
+
+(define (scheme-number->scheme-number n) n)
+(define (complex->complex z) z)
+(put-coercion 'scheme-number
+              'scheme-number
+              scheme-number->scheme-number)
+(put-coercion 'complex
+              'complex
+              complex->complex)
+
+
+(install-scheme-number-package)
+(install-rectangular-package)
+(install-polar-package)
+(install-complex-package)
+
+
+(test-case
+ "General operations must work with both complex and primitive numbers."
+ (check-equal? (add (make-complex-from-real-imag 2 3)
+                    10)
+             (make-complex-from-real-imag (make-scheme-number 12) 3))
+ (check-equal? (sub 5
+                    (make-complex-from-real-imag 6 -2))
+               (make-complex-from-real-imag -1 2))
+ (check-equal? (mul 0.5
+                    (make-complex-from-mag-ang 7 0))
+               (make-complex-from-mag-ang 3.5 0)))
+
+(test-case
+ "(pow x y) is not defined for complex numbers and must cause an error."
+ (check-exn
+  #rx"No method for these types"
+  (lambda () (pow (make-complex-from-real-imag 2.718 0)
+                  (make-complex-from-real-imag 0 3.14)))))
