@@ -62,9 +62,6 @@
            (raise (t1->t2 datum) supertype)]
           [else false])))
 
-(define (project x)
-  ((get 'project (type-tag x)) x))
-
 (define (drop x)
   (let* ([t (type-tag x)]
          [t2->t1 (get 'project t)])
